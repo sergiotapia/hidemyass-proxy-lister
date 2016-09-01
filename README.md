@@ -1,24 +1,21 @@
 # Hidemyass
 
-**TODO: Add description**
+Easily fetch a list of the free proxy's offered by HideMyAss.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+Not published on Hex yet.
 
-  1. Add `hidemyass` to your list of dependencies in `mix.exs`:
-
-    ```elixir
-    def deps do
-      [{:hidemyass, "~> 0.1.0"}]
-    end
-    ```
-
-  2. Ensure `hidemyass` is started before your application:
+## How to use
 
     ```elixir
-    def application do
-      [applications: [:hidemyass]]
-    end
+    proxies = Hidemyass.proxy_list
+
+    [%{anonimity: "High +KA", connection_time: "103", country: "Portugal",
+     ip: "88.157.149.250", port: "8080", speed: "5732", type: "HTTPS"},
+     %{anonimity: "High +KA", connection_time: "354", country: "Thailand",
+     ip: "110.77.159.252", port: "8080", speed: "2929", type: "HTTPS"},
+     %{anonimity: "High +KA", connection_time: "3138", country: "Ghana",
+     ip: "80.87.81.102", port: "80", speed: "4307", type: "HTTP"},....
     ```
 
