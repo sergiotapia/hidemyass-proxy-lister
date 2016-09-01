@@ -44,6 +44,11 @@ defmodule Hidemyass do
   Returns a struct of proxy information given a proxy html table row.
   """
   def scrape_proxy_row(proxy_row) do
+    ip = proxy_row
+      |> Floki.find("td")
+      |> Enum.at(1)
+      |> decipher_ip
+
     port = proxy_row
       |> Floki.find("td")
       |> Enum.at(2)
@@ -85,6 +90,7 @@ defmodule Hidemyass do
       |> String.trim   
 
     %{
+      ip: ip,
       port: port,
       country: country,
       speed: speed,
@@ -92,6 +98,58 @@ defmodule Hidemyass do
       type: type,
       anonimity: anonimity
     }
+  end
+
+  def decipher_ip(ip_cell) do
+    styles = ip_cell
+      |> Floki.find("span style")
+      |> Floki.text
+      |> String.split(".")
+      |> Enum.map(fn(style) -> "." <> style end)
+
+    styles = Enum.slice(styles, 1..-1)  
+      |> Enum.filter(fn(style) -> String.contains?(style, "inline") end)
+      |> Enum.join(" ")
+
+    # Iterate through every element and if it's class is in `styles` 
+    # it means it's a real IP address.
+    {element, attributes, child_nodes} = Floki.find(ip_cell, "span") |> Enum.at(0)
+
+    child_nodes = child_nodes
+      |> Enum.slice(1..-1)
+      |> Enum.reject(fn(node) -> Floki.text(node) == "" end)
+      |> Enum.reject(fn(node) -> !is_bitstring(node) && (Floki.attribute(node, "style") |> Enum.at(0)) == "display:none" end)
+    
+    child_nodes = child_nodes
+      |> Enum.filter(fn(node) -> 
+        is_bitstring(node) || class_is_useful(node) || String.contains?(styles, Floki.attribute(node, "class")) || (Floki.attribute(node, "style") |> Enum.at(0)) == "display: inline"
+      end)
+
+    child_nodes = child_nodes
+      |> Enum.map(fn(node) ->
+        if is_bitstring(node) do
+          node
+        else
+          Floki.text(node)
+        end
+      end)
+    
+    Enum.join(child_nodes, "")
+    |> String.trim 
+  end
+
+  def class_is_useful(node) do
+    if is_bitstring(node) do
+      false
+    else
+      if (Floki.attribute(node, "class") |> Enum.at(0)) == nil do
+        true
+      else
+        class = (Floki.attribute(node, "class") |> Enum.at(0))
+        match = Regex.run ~r/^[0-9]+$/, class
+        match != nil  
+      end
+    end
   end
 
   defp download_url(url) do

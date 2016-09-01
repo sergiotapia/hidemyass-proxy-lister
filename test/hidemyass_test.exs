@@ -3,8 +3,8 @@ defmodule HidemyassTest do
   doctest Hidemyass
 
   test "returns a list of free available proxies" do
-    proxies = Hidemyass.proxy_list
-    assert Enum.count(proxies) == 625
+    proxies = Hidemyass.proxy_list |> IO.inspect
+    assert Enum.count(proxies) > 500
   end
 
   test "finds all free proxy page urls" do
@@ -12,9 +12,31 @@ defmodule HidemyassTest do
     assert Enum.count(page_urls) == 13
   end
 
+  test "deciphers the ip address from obfuscated table ip cell" do
+    ip = Hidemyass.decipher_ip(ip_cell_sample)
+    assert ip != nil
+  end
+
   test "scrapes proxy information from a proxy table row" do
     proxy = Hidemyass.scrape_proxy_row(proxy_row_sample)
     assert proxy != nil
+  end
+
+  def ip_cell_sample do
+    # Result should be: "210.245.27.45"
+    """
+    <td>
+        <span>
+          <style>
+.AEYB{display:none}
+.QWz-{display:inline}
+.FF39{display:none}
+.ft0U{display:inline}
+.lG85{display:none}
+.vC_e{display:inline}
+</style><span class="lG85">12</span><div style="display:none">12</div><span style="display:none">59</span><span style="display:none">67</span><div style="display:none">67</div><span></span><span style="display:none">178</span><span class="AEYB">178</span><div style="display:none">178</div>210<span style="display:none">213</span><span></span><div style="display:none">236</div><span class="ft0U">.</span><span class="lG85">57</span><span style="display:none">130</span><div style="display:none">130</div><span style="display:none">171</span><span style="display: inline">245</span><span class="56">.</span><span class="QWz-">27</span><span style="display:none">186</span><span class="lG85">186</span><div style="display:none">186</div><span style="display:none">208</span><div style="display:none">208</div><span class="90">.</span><span style="display:none">22</span><span class="FF39">22</span><div style="display:none">22</div>45<span style="display:none">63</span><span class="AEYB">63</span><div style="display:none">63</div><span class="FF39">134</span><div style="display:none">134</div><span style="display:none">235</span><span class="FF39">235</span><span></span>        </span>
+    </td>
+    """
   end
 
   def proxy_row_sample do
