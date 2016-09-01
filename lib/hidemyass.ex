@@ -1,0 +1,2 @@
+defmodule Hidemyass do
+end
